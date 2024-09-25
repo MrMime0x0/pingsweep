@@ -1,0 +1,34 @@
+metaxploit = include_lib("/lib/metaxploit.so")  // Load the metaxploit library
+
+if not metaxploit then
+    exit("Error: Unable to load metaxploit library.")
+end if
+
+if params.len != 1 then
+    exit("Usage: pingsweep [target_ip]")
+end if
+
+target_ip = params[0]
+open_ports = []  // List to store open ports
+
+// Function to scan ports
+scan_ports = function(target_ip, port_list)
+    for port in port_list
+        session = metaxploit.net_use(target_ip, port)  // Attempt to connect to the target IP and port
+        if session then
+            print("Port " + port + " is open.")
+            open_ports.push(port)  // Add open port to the list
+        else
+            print("Port " + port + " is closed.")
+        end if
+    end for
+end function
+
+// List of common ports to scan (you can extend this list)
+common_ports = [21, 22, 80, 25, 3306, 141, 1542, 8080, 1222]
+
+// Perform the scan
+scan_ports(target_ip, common_ports)
+
+// Display results
+print("<color=green>Open Ports on " + target_ip + ":> " + open_ports.join(", " + ""))
